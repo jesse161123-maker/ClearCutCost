@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.7.245:3000';
+const BASE_URL = 'https://clearcutcost.onrender.com';
 
 export type DocumentType =
   | 'contractor_estimate'
