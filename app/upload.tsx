@@ -42,26 +42,6 @@ export default function UploadScreen() {
   const hasImportedFile = selectedFileName !== null;
   const canAnalyze = selectedType !== null && (documentText.trim().length > 0 || hasImportedFile) && !loading;
 
-  const buildImportedFilePrompt = () => {
-    if (!selectedFileName || !selectedFileType) {
-      return '';
-    }
-
-    if (selectedFileType === 'image') {
-      return [
-        `Imported image: ${selectedFileName}`,
-        '',
-        'Analyze this uploaded image. Identify visible costs, line items, totals, payment terms, fees, missing scope, unusual clauses, and risk factors. If exact text is unclear, state what needs manual confirmation.',
-      ].join('\n');
-    }
-
-    return [
-      `Imported PDF: ${selectedFileName}`,
-      '',
-      'Analyze this uploaded PDF document. Identify costs, fees, totals, payment terms, missing scope, unusual clauses, and risk factors. If the PDF text is not available in this temporary build, state what key pages or line items should be confirmed.',
-    ].join('\n');
-  };
-
   const handleClose = () => {
     console.log('[Upload] Close button pressed');
     router.back();
@@ -76,11 +56,10 @@ export default function UploadScreen() {
   const handleAnalyze = async () => {
     if (!canAnalyze || !selectedType) return;
     const userText = documentText.trim();
-    const analysisText = userText || buildImportedFilePrompt();
 
-    if (!analysisText) return;
+    if (!userText && !hasImportedFile) return;
 
-    console.log('[Upload] Analyze button pressed, type:', selectedType, 'text length:', analysisText.length);
+    console.log('[Upload] Analyze button pressed, type:', selectedType, 'text length:', userText.length);
     setLoading(true);
     setError(null);
 
@@ -100,7 +79,7 @@ export default function UploadScreen() {
       const analysis = await createAnalysis({
         session_id: sessionId,
         document_type: selectedType,
-        document_text: analysisText,
+        document_text: userText,
         is_subscribed: hasActiveSubscription,
         document_file:
           selectedFileName && selectedFileBase64 && selectedFileMimeType
